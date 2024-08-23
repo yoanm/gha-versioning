@@ -48,3 +48,7 @@ jobs:
 - `git-name`: Default to `github-actions`.
   
   _Git user name is required when creating tag with a message._
+
+## Outputs
+- `minor-tag`: Minor tag created (e.g. `vX.Y`)
+- `major-tag`: Major tag created (e.g. `vX`)
