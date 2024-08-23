@@ -17,7 +17,7 @@ Designed to act upon created or edited github releases, action will create or ov
 
 > [!IMPORTANT]
 > - Do not forget to set `contents: write` permission !
-> - When action is used with another event that release creation (or edition), you must fill the `tag` input !
+> - When action is used with another event than release creation (or edition), you must fill the `tag` input !
 
 ```yaml
 name: Publish
@@ -39,6 +39,9 @@ jobs:
       - name: Generate vX and vX.Y tags
         uses: yoanm/gha-versioning@v1
 ```
+
+> [!TIP]
+> The repository uses the action too, therefore a `vX` and a `vX.Y` tag are automatically created for each release !
 
 ## Inputs
 - `tag`: Default to `${{ github.event.release.tag_name }}`
