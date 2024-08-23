@@ -1,0 +1,23 @@
+name: Publish
+
+on:
+  release:
+    types: [published, edited]
+
+jobs:
+  tag:
+    name: Publish vX and vX.Y tags
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to push new tags !
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 0
+
+      - name: Generate vX and vX.Y tags
+        uses: ./
+        with:
+          tag: ${{ github.event.release.tag_name }}
