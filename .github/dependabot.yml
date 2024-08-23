@@ -1,0 +1,27 @@
+version: 2
+updates:
+#
+#
+# [GHAction]
+# Based on https://github.com/yoanm/shared-config/blob/master/GitHub/dependabot/github-action.yml file
+#
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: sunday # Create PRs during week-ends, they will be ready on monday morning
+    commit-message:
+      prefix: '[dependabot][ghaction] - ' # No need to specify prod/dev for GHAction as there is only "production" updates !
+      include: scope
+    groups:
+# Group all basic updates inside the a single PR
+# No need to split prod/dev as there is only prod updates
+      all-actions:
+        applies-to: version-updates
+        patterns: ['*']
+# Group all security updates inside the a single PR
+# No need to split prod/dev as there is only prod updates
+# +Most likely no need to split major and other updates either
+      SECURITY-all:
+        applies-to: security-updates
+        patterns: ['*']
