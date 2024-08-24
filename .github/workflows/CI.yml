@@ -1,0 +1,26 @@
+name: 'CI'
+
+on: # Build any PRs and main branch changes
+  pull_request:
+    types:
+      - opened
+      - synchronize
+  push:
+    branches: [ master ]
+  schedule:
+    - cron: '0 0 1 * *' # Every month
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.head_ref || github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  static-tests:
+    name: Static tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate action file syntax
+        run: yamllint -d relaxed action.yml 

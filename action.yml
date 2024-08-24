@@ -1,6 +1,7 @@
 name: gha-versioning
 description: |
-  Create (or override existing) vX and vX.Y based on the provided tag. Useful to maintain GitHub Action tags up to date.
+  Create (or override existing) vX and vX.Y based on the provided tag.
+  Useful to maintain GitHub Action tags up to date.
 branding:
   icon: tag
   color: yellow
@@ -17,7 +18,13 @@ inputs:
   git-name:
     description: The name for the GIT user creating the tags
     required: false
-    default: 'github-actions'
+    default: 'github-actions[bot]'
+  working-directory:
+    description: |
+      Directory to the Git repository to tag.
+      Useful only if you checkout it in a specific location !
+    required: false
+    default: '${{ github.workspace }}'
 
 outputs:
   minor-tag:
@@ -30,10 +37,11 @@ outputs:
 runs:
   using: "composite"
   steps:
-    # Even if an input is marked as "required", an empty value (or no value) may be passed !
+    # Even if an input is marked as "required", empty/no value may be passed !
     - shell: bash
       env:
         FULL_TAG: ${{ inputs.tag }}
+      working-directory: ${{ inputs.working-directory }}
       run: |
         # Validate provided tag ...
         if ! [[ "$FULL_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -45,10 +53,11 @@ runs:
       shell: bash
       env:
         FULL_TAG: ${{ inputs.tag }}
+      working-directory: ${{ inputs.working-directory }}
       run: |
         # Generate vX and vX.Y tags
         echo "Original tag -> $FULL_TAG"
-        
+
         MINOR_TAG=`echo $FULL_TAG | cut -d '.' -f 1-2`;
         echo "Minor tag -> $MINOR_TAG"
         if ! [[ "$MINOR_TAG" =~ ^v[0-9]+\.[0-9]+$ ]]; then
@@ -56,10 +65,10 @@ runs:
           exit 2
         fi;
         echo "minor=$MINOR_TAG" >> "$GITHUB_OUTPUT"
-  
+
         MAJOR_TAG=`echo $FULL_TAG | cut -d '.' -f 1`;
         echo "Major tag -> $MAJOR_TAG"
-        if ! [[ "$MAJOR_TAG" =~ ^v[0-9]$ ]]; then
+        if ! [[ "$MAJOR_TAG" =~ ^v[0-9]+$ ]]; then
           echo "::error::Invalid major tag format (expected vX) !"
           exit 3
         fi;
@@ -72,13 +81,20 @@ runs:
         MAJOR_TAG: ${{ steps.generate-tags.outputs.major }}
         GIT_EMAIL: ${{ inputs.git-email }}
         GIT_NAME: ${{ inputs.git-name }}
+      working-directory: ${{ inputs.working-directory }}
       run: |
         # Create & push tags
-        # /!\ Update the original tag at the end (and after 1s delay) so it will be the latest tag generated, 
-        # otherwise, github releases won't take it automatically as latest tag to automatically generate the changelog !
-        git config --global user.email "$GIT_EMAIL" # Required when -m is used !
-        git config --global user.name "$GIT_NAME" # Required when -m is used !
-        git tag -f $MAJOR_TAG -m "Linked to $FULL_TAG tag" $FULL_TAG && \
-          git tag -f $MINOR_TAG -m "Linked to $FULL_TAG tag" $FULL_TAG &&  \
-          sleep 1 && git tag -f $FULL_TAG -m "See also $MAJOR_TAG or $MINOR_TAG tags" $FULL_TAG && \
-          git push origin --force $MINOR_TAG $MAJOR_TAG $FULL_TAG
+
+        # User email and name are required when -m is used !
+        (
+          git config --global user.email "$GIT_EMAIL" && \
+          git config --global user.name "$GIT_NAME" \
+        ) || exit 1
+
+        # Update the original tag BUT keep the original message !
+        git tag -l --format='%(contents)' $FULL_TAG > ./TAG_MSG || exit 2
+
+        (git tag -f $MAJOR_TAG -m "Linked to $FULL_TAG tag" ${FULL_TAG}^{} && \
+          git tag -f $MINOR_TAG -m "Linked to $FULL_TAG tag" ${FULL_TAG}^{} && \
+          sleep 1 && git tag -f $FULL_TAG -F ./TAG_MSG ${FULL_TAG}^{} && \
+          git push origin --force $MINOR_TAG $MAJOR_TAG $FULL_TAG) || exit 3
