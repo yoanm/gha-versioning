@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Trigger test repository worfklow
         env:
-          GITHUB_TOKEN: ${{ secret.FUNCTIONAL_TESTS_TRIGGER }}
+          GITHUB_TOKEN: ${{ secrets.FUNCTIONAL_TESTS_TRIGGER }}
         run: |
           gh api \
             --method POST \
