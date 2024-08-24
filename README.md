@@ -1,6 +1,7 @@
 # gha-versioning 🏷️
 
 ![GitHub Tag](https://img.shields.io/github/v/tag/yoanm/gha-versioning?sort=semver&logo=githubactions&logoColor=white&logoSize=auto&link=https%3A%2F%2Fgithub.com%2Fyoanm%2Fgha-versioning%2Freleases)
+ [![CI](https://github.com/yoanm/gha-versioning/actions/workflows/CI.yml/badge.svg)](https://github.com/yoanm/gha-versioning/actions/workflows/CI.yml)
 
 Lightweight composite github action managing `vX` and `vX.Y` tags for a github action.
 
