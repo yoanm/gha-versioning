@@ -85,10 +85,13 @@ runs:
         # otherwise, github releases won't take it automatically as latest tag to automatically generate the changelog !
         git config --global user.email "$GIT_EMAIL" # Required when -m is used !
         git config --global user.name "$GIT_NAME" # Required when -m is used !
-        
+        # Keep original tag message !
+        git tag -l --format='%(contents)' $FULL_TAG > ./TAG_MSG
+        # DEBUG
+        cat ./TAG_MSG
         git tag -f $MAJOR_TAG -m "Linked to $FULL_TAG tag" ${FULL_TAG}^{} && \
           git tag -f $MINOR_TAG -m "Linked to $FULL_TAG tag" ${FULL_TAG}^{} &&  \
-          sleep 1 && git tag -f $FULL_TAG ${FULL_TAG}^{} && \
+          sleep 1 && git tag -f $FULL_TAG -F ./TAG_MSG ${FULL_TAG}^{} && \
           git push origin --force $MINOR_TAG $MAJOR_TAG $FULL_TAG
         
         # DEBUG
