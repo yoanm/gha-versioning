@@ -65,7 +65,7 @@ runs:
   
         MAJOR_TAG=`echo $FULL_TAG | cut -d '.' -f 1`;
         echo "Major tag -> $MAJOR_TAG"
-        if ! [[ "$MAJOR_TAG" =~ ^v[0-9]$ ]]; then
+        if ! [[ "$MAJOR_TAG" =~ ^v[0-9]+$ ]]; then
           echo "::error::Invalid major tag format (expected vX) !"
           exit 3
         fi;
