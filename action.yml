@@ -1,6 +1,6 @@
 name: gha-versioning
 description: |
-  Create (or override existing) vX and vX.Y based on the provided tag. 
+  Create (or override existing) vX and vX.Y based on the provided tag.
   Useful to maintain GitHub Action tags up to date.
 branding:
   icon: tag
@@ -21,7 +21,8 @@ inputs:
     default: 'github-actions[bot]'
   working-directory:
     description: |
-      Directory to the Git repository to tag. Useful only if you checkout it in a specific location !
+      Directory to the Git repository to tag. 
+      Useful only if you checkout it in a specific location !
     required: false
     default: '${{ github.workspace }}'
 
