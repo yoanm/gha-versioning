@@ -48,9 +48,10 @@ jobs:
 - `git-email`: Default to `github-actions[bot]@users.noreply.github.com`. 
 
   _Git user email is required when creating tag with a message._
-- `git-name`: Default to `github-actions`.
+- `git-name`: Default to `github-actions[bot]`.
   
   _Git user name is required when creating tag with a message._
+- `working-directory`: Directory to the Git repository to tag. Default to `${{ github.workspace }}`.
 
 ## Outputs
 - `minor-tag`: Minor tag created (e.g. `vX.Y`)
