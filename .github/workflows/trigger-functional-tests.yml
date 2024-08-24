@@ -6,7 +6,7 @@ on:
 
 jobs:
   tests:
-    name: Run functional test
+    name: Run functional tests
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
