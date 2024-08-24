@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   tests:
-    name: Run functional test
+    name: Test
     runs-on: ubuntu-latest
     permissions:
       actions: write
@@ -26,4 +26,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Validate YAML file
-        run: yamllint -d relaxed action.yml 
+        run: yamllint action.yml 
