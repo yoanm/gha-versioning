@@ -9,7 +9,7 @@ Lightweight composite github action managing `vX` and `vX.Y` tags for a github a
 Designed to act upon created or edited github releases, action will create or override `vX` and `vX.Y` tags based on the provided tag.
 
 > [!NOTE]
-> **Action will also override the original tag**, in order to keep it as latest tag !
+> **Action will also override the original tag** (reference and the message stay as is though), in order to keep it as latest tag !
 > 
 > Otherwise, when creating a new github releases with an automatically generated changelog, `vX` or `vX.Y` tag will be picked as previous tag rather than the expected previous `vX.Y.Z` tag.
 
