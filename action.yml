@@ -21,7 +21,7 @@ inputs:
     default: 'github-actions[bot]'
   working-directory:
     description: |
-      Directory to the Git repository to tag. 
+      Directory to the Git repository to tag.
       Useful only if you checkout it in a specific location !
     required: false
     default: '${{ github.workspace }}'
