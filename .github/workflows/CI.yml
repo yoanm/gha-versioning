@@ -1,0 +1,32 @@
+name: 'CI'
+
+on: # Build any PRs and main branch changes
+  workflow_dispatch: # Allows to run the workflow manually from the Actions tab
+  pull_request:
+    types:
+      - opened
+      - synchronize
+  push:
+    branches: [ master ]
+  schedule:
+    - cron: '0 0 1 * *' # Every month
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.head_ref || github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Run functional test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger test repository worfklow
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/yoanm/gha-versioning-test-repo/dispatches \
+             -f "event_type=functional-tests" -F "client_payload[ref]=${{ github.head_ref || github.ref }}"
