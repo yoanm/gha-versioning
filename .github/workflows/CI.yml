@@ -22,7 +22,8 @@ jobs:
     permissions:
       actions: write
     steps:
-      - name: Dummy step
-        shell: bash
-        run: |
-          echo "Dummy step, just to trigger underlying workflow run event"
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate YAML file
+        run: yamllint action.yml
