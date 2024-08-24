@@ -18,6 +18,10 @@ inputs:
     description: The name for the GIT user creating the tags
     required: false
     default: 'github-actions'
+  workspace:
+    description: Git repository directory
+    required: false
+    default: '${{ github.workspace }}'
 
 outputs:
   minor-tag:
@@ -34,6 +38,7 @@ runs:
     - shell: bash
       env:
         FULL_TAG: ${{ inputs.tag }}
+      working-directory: ${{ inputs.workspace }}
       run: |
         # Validate provided tag ...
         if ! [[ "$FULL_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -48,6 +53,7 @@ runs:
       shell: bash
       env:
         FULL_TAG: ${{ inputs.tag }}
+      working-directory: ${{ inputs.workspace }}
       run: |
         # Generate vX and vX.Y tags
         echo "Original tag -> $FULL_TAG"
@@ -75,6 +81,7 @@ runs:
         MAJOR_TAG: ${{ steps.generate-tags.outputs.major }}
         GIT_EMAIL: ${{ inputs.git-email }}
         GIT_NAME: ${{ inputs.git-name }}
+      working-directory: ${{ inputs.workspace }}
       run: |
         # Create & push tags
         # /!\ Update the original tag at the end (and after 1s delay) so it will be the latest tag generated, 
