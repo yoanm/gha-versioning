@@ -16,14 +16,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  tests:
-    name: Tests
+  static-tests:
+    name: Static tests
     runs-on: ubuntu-latest
-    permissions:
-      actions: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate YAML file
+      - name: Validate action file syntax
         run: yamllint -d relaxed action.yml 
