@@ -17,9 +17,9 @@ inputs:
   git-name:
     description: The name for the GIT user creating the tags
     required: false
-    default: 'github-actions'
-  workspace:
-    description: Git repository directory
+    default: 'github-actions[bot]'
+  working-directory:
+    description: Directory to the Git repository to tag. Useful only if you checkout it in a specific location !
     required: false
     default: '${{ github.workspace }}'
 
@@ -38,22 +38,19 @@ runs:
     - shell: bash
       env:
         FULL_TAG: ${{ inputs.tag }}
-      working-directory: ${{ inputs.workspace }}
+      working-directory: ${{ inputs.working-directory }}
       run: |
         # Validate provided tag ...
         if ! [[ "$FULL_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
           echo "::error::Invalid tag format (expected vX.Y.Z) !"
           exit 1
         fi;
-        # DEBUG
-        git status
-        ls -ail .
 
     - id: generate-tags
       shell: bash
       env:
         FULL_TAG: ${{ inputs.tag }}
-      working-directory: ${{ inputs.workspace }}
+      working-directory: ${{ inputs.working-directory }}
       run: |
         # Generate vX and vX.Y tags
         echo "Original tag -> $FULL_TAG"
@@ -81,7 +78,7 @@ runs:
         MAJOR_TAG: ${{ steps.generate-tags.outputs.major }}
         GIT_EMAIL: ${{ inputs.git-email }}
         GIT_NAME: ${{ inputs.git-name }}
-      working-directory: ${{ inputs.workspace }}
+      working-directory: ${{ inputs.working-directory }}
       run: |
         # Create & push tags
         # /!\ Update the original tag at the end (and after 1s delay) so it will be the latest tag generated, 
