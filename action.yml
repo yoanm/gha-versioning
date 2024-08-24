@@ -45,6 +45,7 @@ runs:
           echo "::error::Invalid tag format (expected vX.Y.Z) !"
           exit 1
         fi;
+        exit 3 # DEBUG - TO REMOVE
 
     - id: generate-tags
       shell: bash
