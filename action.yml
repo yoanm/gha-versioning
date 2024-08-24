@@ -81,12 +81,9 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         # Create & push tags
-        # /!\ Update the original tag at the end (and after 1s delay) so it will be the latest tag generated, 
-        # otherwise, github releases won't take it automatically as latest tag to automatically generate the changelog !
         
         # User email and name are required when -m is used !
         (git config --global user.email "$GIT_EMAIL" && git config --global user.name "$GIT_NAME") || exit 1
-        
         
         # Update the original tag BUT keep the original message !
         git tag -l --format='%(contents)' $FULL_TAG > ./TAG_MSG || exit 2
