@@ -1,6 +1,7 @@
 name: gha-versioning
 description: |
-  Create (or override existing) vX and vX.Y based on the provided tag. Useful to maintain GitHub Action tags up to date.
+  Create (or override existing) vX and vX.Y based on the provided tag. 
+  Useful to maintain GitHub Action tags up to date.
 branding:
   icon: tag
   color: yellow
@@ -19,7 +20,8 @@ inputs:
     required: false
     default: 'github-actions[bot]'
   working-directory:
-    description: Directory to the Git repository to tag. Useful only if you checkout it in a specific location !
+    description: |
+      Directory to the Git repository to tag. Useful only if you checkout it in a specific location !
     required: false
     default: '${{ github.workspace }}'
 
@@ -34,7 +36,7 @@ outputs:
 runs:
   using: "composite"
   steps:
-    # Even if an input is marked as "required", an empty value (or no value) may be passed !
+    # Even if an input is marked as "required", empty/no value may be passed !
     - shell: bash
       env:
         FULL_TAG: ${{ inputs.tag }}
@@ -83,12 +85,15 @@ runs:
         # Create & push tags
 
         # User email and name are required when -m is used !
-        (git config --global user.email "$GIT_EMAIL" && git config --global user.name "$GIT_NAME") || exit 1
+        (
+          git config --global user.email "$GIT_EMAIL" && \
+          git config --global user.name "$GIT_NAME" \
+        ) || exit 1
 
         # Update the original tag BUT keep the original message !
         git tag -l --format='%(contents)' $FULL_TAG > ./TAG_MSG || exit 2
 
         (git tag -f $MAJOR_TAG -m "Linked to $FULL_TAG tag" ${FULL_TAG}^{} && \
-          git tag -f $MINOR_TAG -m "Linked to $FULL_TAG tag" ${FULL_TAG}^{} &&  \
+          git tag -f $MINOR_TAG -m "Linked to $FULL_TAG tag" ${FULL_TAG}^{} && \
           sleep 1 && git tag -f $FULL_TAG -F ./TAG_MSG ${FULL_TAG}^{} && \
           git push origin --force $MINOR_TAG $MAJOR_TAG $FULL_TAG) || exit 3
