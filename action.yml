@@ -127,22 +127,23 @@ runs:
         MAJOR_TAG: ${{ steps.generate-tags.outputs.major }}
       working-directory: ${{ inputs.working-directory }}
       run: |
+        # Update inner releases
         MINOR_RELEASE_EXISTS="$(gh release view ${MINOR_TAG} --json id -q .id | wc -l )"
         MAJOR_RELEASE_EXISTS="$(gh release view ${MAJOR_TAG} --json id -q .id | wc -l )"
         if [[ "${MINOR_RELEASE_EXISTS}${MAJOR_RELEASE_EXISTS}" = '00' ]]; then
           echo "::warning::No inner release to update !"
           exit 0
         fi
-        PARAMS='-t "${FULL_TAG}"'
-        if ! [[ "`gh repo view --json latestRelease -q .latestRelease.tagName`" = "${FULL_TAG}" ]]; then
-          PARAMS+=' --latest'
+        AS_LATEST_PARAM=""
+        if [[ "`gh repo view --json latestRelease -q .latestRelease.tagName`" = "${FULL_TAG}" ]]; then
+          AS_LATEST_PARAM='--latest'
         fi
         if ! [[ "${MINOR_RELEASE_EXISTS}" = '0' ]]; then
           echo "Updating minor release ${MINOR_TAG}"
-          gh release edit ${MINOR_TAG} ${PARAMS}
+          gh release edit ${MINOR_TAG} --title "${FULL_TAG}" ${AS_LATEST_PARAM}
         fi
         # Update major release at the end, so it will become the latest if --latest is used !
         if ! [[ "${MAJOR_RELEASE_EXISTS}" = '0' ]]; then
           echo "Updating major release ${MAJOR_TAG}"
-          gh release edit ${MAJOR_TAG} ${PARAMS}
+          gh release edit ${MAJOR_TAG} --title "${FULL_TAG}" ${AS_LATEST_PARAM}
         fi
