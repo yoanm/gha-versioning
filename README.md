@@ -31,8 +31,9 @@ jobs:
   tag:
     name: Publish vX and vX.Y tags
     runs-on: ubuntu-latest
+    if: ${{ github.event.release.prerelease == false && github.event.release.draft == false }}
     permissions:
-      contents: write # Required to push new tags !
+      contents: write # Required to manage tags & releases !
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,15 +45,44 @@ jobs:
 > [!TIP]
 > The repository uses the action too, therefore a `vX` and a `vX.Y` tag are automatically created for each release !
 
+### `vX` / `vX.Y` on GitHub Marketplace
+If you want to make `vX` and/or `vX.Y` versions available on the marketplace, follow this procedure:
+
+- Use `update-inner-releases` at `true` when using the action
+
+  ```yaml
+  - name: Generate vX and vX.Y tags
+    uses: yoanm/gha-versioning@v1
+    with:
+      update-inner-releases: true
+  ```
+
+- Wait for the related tag (`vX` or `vX.Y`) to be created by this action.
+- Manually create the releases targeting the tag (`vX` or `vX.Y` or both, up to you) and published it to the marketplace.
+
+Then continue creating `vX.Y.Z` releases as usual, related existing `vX` and `vX.Y` releases will be automatically updated to reflect the actual `vX.Y.Z` version.
+
 ## Inputs
 - `tag`: Default to `${{ github.event.release.tag_name }}`
+
+  The full tag used to generate vX and vX.Y tags
+
+- `update-inner-releases`: Default to `false`.
+
+  Whether to also update releases name linked to `vX` and `vX.Y` tags and set them as latest if provided tag release is currently the latest release.
+
+  > [!IMPORTANT]
+  > Will work only on pre-existing releases !
+
 - `git-email`: Default to `github-actions[bot]@users.noreply.github.com`. 
 
   _Git user email is required when creating tag with a message._
 - `git-name`: Default to `github-actions[bot]`.
   
   _Git user name is required when creating tag with a message._
-- `working-directory`: Directory to the Git repository to tag. Default to `${{ github.workspace }}`.
+- `working-directory`: Default to `${{ github.workspace }}`.
+
+  Directory to the Git repository to tag.
 
 ## Outputs
 - `minor-tag`: Minor tag created (e.g. `vX.Y`)

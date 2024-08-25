@@ -11,6 +11,13 @@ inputs:
     description: The full tag used to generate vX and vX.Y tags
     required: false
     default: ${{ github.event.release.tag_name }}
+  update-inner-releases:
+    description: |
+      Whether to also update releases name linked to `vX` and `vX.Y` tags and set them as latest if provided tag
+      release is currently the latest release.
+      Will work only on pre-existing releases !
+    required: false
+    default: 'false'
   git-email:
     description: The email for the GIT user creating the tags
     required: false
@@ -39,17 +46,28 @@ runs:
   steps:
     # Even if an input is marked as "required", empty/no value may be passed !
     - shell: bash
+      id: validate
       env:
         FULL_TAG: ${{ inputs.tag }}
       working-directory: ${{ inputs.working-directory }}
       run: |
         # Validate provided tag ...
-        if ! [[ "$FULL_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+
+        if [[ "$FULL_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "tag-type=full" >> "$GITHUB_OUTPUT"
+        elif [[ "$FULL_TAG" =~ ^v[0-9]+\.[0-9]+$ ]]; then
+          echo "::notice::Minor tag detected, skipping process"
+          echo "tag-type=minor" >> "$GITHUB_OUTPUT"
+        elif [[ "$FULL_TAG" =~ ^v[0-9]+$ ]]; then
+          echo "::notice::Major tag detected, skipping process"
+          echo "tag-type=major" >> "$GITHUB_OUTPUT"
+        else
           echo "::error::Invalid tag format (expected vX.Y.Z) !"
           exit 1
         fi;
 
     - id: generate-tags
+      if: ${{ steps.validate.outputs.tag-type == 'full' }}
       shell: bash
       env:
         FULL_TAG: ${{ inputs.tag }}
@@ -75,6 +93,7 @@ runs:
         echo "major=$MAJOR_TAG" >> "$GITHUB_OUTPUT"
 
     - shell: bash
+      if: ${{ steps.validate.outputs.tag-type == 'full' }}
       env:
         FULL_TAG: ${{ inputs.tag }}
         MINOR_TAG: ${{ steps.generate-tags.outputs.minor }}
@@ -98,3 +117,33 @@ runs:
           git tag -f $MINOR_TAG -m "Linked to $FULL_TAG tag" ${FULL_TAG}^{} && \
           sleep 1 && git tag -f $FULL_TAG -F ./TAG_MSG ${FULL_TAG}^{} && \
           git push origin --force $MINOR_TAG $MAJOR_TAG $FULL_TAG) || exit 3
+
+    - shell: bash
+      if: ${{ steps.validate.outputs.tag-type == 'full' && inputs.update-inner-releases == 'true' }}
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        FULL_TAG: ${{ inputs.tag }}
+        MINOR_TAG: ${{ steps.generate-tags.outputs.minor }}
+        MAJOR_TAG: ${{ steps.generate-tags.outputs.major }}
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        # Update inner releases
+        MINOR_RELEASE_EXISTS="$(gh release view ${MINOR_TAG} --json id -q .id | wc -l )"
+        MAJOR_RELEASE_EXISTS="$(gh release view ${MAJOR_TAG} --json id -q .id | wc -l )"
+        if [[ "${MINOR_RELEASE_EXISTS}${MAJOR_RELEASE_EXISTS}" = '00' ]]; then
+          echo "::warning::No inner release to update !"
+          exit 0
+        fi
+        AS_LATEST_PARAM=""
+        if [[ "`gh repo view --json latestRelease -q .latestRelease.tagName`" = "${FULL_TAG}" ]]; then
+          AS_LATEST_PARAM='--latest'
+        fi
+        if ! [[ "${MINOR_RELEASE_EXISTS}" = '0' ]]; then
+          echo "Updating minor release ${MINOR_TAG} with --title "${FULL_TAG}" ${AS_LATEST_PARAM}"
+          gh release edit ${MINOR_TAG} --title "${FULL_TAG}" ${AS_LATEST_PARAM}
+        fi
+        # Update major release at the end, so it will become the latest if --latest is used !
+        if ! [[ "${MAJOR_RELEASE_EXISTS}" = '0' ]]; then
+          echo "Updating major release ${MAJOR_TAG} with --title "${FULL_TAG}" ${AS_LATEST_PARAM}"
+          gh release edit ${MAJOR_TAG} --title "${FULL_TAG}" ${AS_LATEST_PARAM}
+        fi
