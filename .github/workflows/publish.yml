@@ -21,3 +21,4 @@ jobs:
         uses: ./
         with:
           tag: ${{ github.event.release.tag_name }}
+          update-inner-releases: true
