@@ -58,7 +58,7 @@ If you want to make `vX` and/or `vX.Y` versions available on the marketplace, fo
   ```
 
 - Wait for the related tag (`vX` or `vX.Y`) to be created by this action.
-- Manually create the releases targeting the tag (`vX` or `vX.Y` or both, up to you) and published it to the marketplace.
+- Manually create the releases targeting the tag (`vX` or `vX.Y` or both, up to you) and publish it to the marketplace.
 
 Then continue creating `vX.Y.Z` releases as usual, related existing `vX` and `vX.Y` releases will be automatically updated to reflect the actual `vX.Y.Z` version.
 
