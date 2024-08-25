@@ -139,6 +139,7 @@ runs:
         if [[ "`gh repo view --json latestRelease -q .latestRelease.tagName`" = "${FULL_TAG}" ]]; then
           PARAMS+=" --latest"
         fi
+        echo "PARAMS=${PARAMS}"  # Debug
         if ! [[ "${MINOR_RELEASE_EXISTS}" -eq 0 ]]; then
           echo "Updating minor release ${MINOR_TAG} with ${PARAMS}"
           gh release edit "${MINOR_TAG}" ${PARAMS}
