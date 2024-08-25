@@ -129,7 +129,7 @@ runs:
       run: |
         MINOR_RELEASE_EXISTS="$(gh release view ${MINOR_TAG} --json id -q .id | wc -l )"
         MAJOR_RELEASE_EXISTS="$(gh release view ${MAJOR_TAG} --json id -q .id | wc -l )"
-        if [[ "$MINOR_RELEASE_EXISTS" = '0']] && [[ "$MAJOR_RELEASE_EXISTS" = '0' ]]; then
+        if [[ "${MINOR_RELEASE_EXISTS}${MAJOR_RELEASE_EXISTS}" = '00' ]]; then
           echo "::warning::No inner release to update !"
           exit 0
         fi
