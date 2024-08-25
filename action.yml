@@ -42,7 +42,7 @@ outputs:
     value: ${{ steps.generate-tags.outputs.major }}
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     # Even if an input is marked as "required", empty/no value may be passed !
     - shell: bash
@@ -53,18 +53,18 @@ runs:
       run: |
         # Validate provided tag ...
 
-        if [[ "$FULL_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-          echo "tag-type=full" >> "$GITHUB_OUTPUT"
-        elif [[ "$FULL_TAG" =~ ^v[0-9]+\.[0-9]+$ ]]; then
-          echo "::notice::Minor tag detected, skipping process"
-          echo "tag-type=minor" >> "$GITHUB_OUTPUT"
-        elif [[ "$FULL_TAG" =~ ^v[0-9]+$ ]]; then
-          echo "::notice::Major tag detected, skipping process"
-          echo "tag-type=major" >> "$GITHUB_OUTPUT"
+        if [[ "${FULL_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo 'tag-type=full' >> "${GITHUB_OUTPUT}"
+        elif [[ "${FULL_TAG}" =~ ^v[0-9]+\.[0-9]+$ ]]; then
+          echo '::notice::Minor tag detected, skipping process'
+          echo 'tag-type=minor' >> "${GITHUB_OUTPUT}"
+        elif [[ "${FULL_TAG}" =~ ^v[0-9]+$ ]]; then
+          echo '::notice::Major tag detected, skipping process'
+          echo 'tag-type=major' >> "${GITHUB_OUTPUT}"
         else
-          echo "::error::Invalid tag format (expected vX.Y.Z) !"
+          echo '::error::Invalid tag format (expected vX.Y.Z) !'
           exit 1
-        fi;
+        fi
 
     - id: generate-tags
       if: ${{ steps.validate.outputs.tag-type == 'full' }}
@@ -74,23 +74,23 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         # Generate vX and vX.Y tags
-        echo "Original tag -> $FULL_TAG"
+        echo "Original tag -> ${FULL_TAG}"
 
-        MINOR_TAG=`echo $FULL_TAG | cut -d '.' -f 1-2`;
-        echo "Minor tag -> $MINOR_TAG"
-        if ! [[ "$MINOR_TAG" =~ ^v[0-9]+\.[0-9]+$ ]]; then
-          echo "::error::Invalid minor tag format (expected vX.Y) !"
-          exit 2
-        fi;
-        echo "minor=$MINOR_TAG" >> "$GITHUB_OUTPUT"
+        MINOR_TAG=$(echo "${FULL_TAG}" | cut -d '.' -f 1-2);
+        echo "Minor tag -> ${MINOR_TAG}"
+        if ! [[ "${MINOR_TAG}" =~ ^v[0-9]+\.[0-9]+$ ]]; then
+          echo '::error::Invalid minor tag format (expected vX.Y) !'
+          exit 1
+        fi
+        echo "minor=${MINOR_TAG}" >> "${GITHUB_OUTPUT}"
 
-        MAJOR_TAG=`echo $FULL_TAG | cut -d '.' -f 1`;
-        echo "Major tag -> $MAJOR_TAG"
-        if ! [[ "$MAJOR_TAG" =~ ^v[0-9]+$ ]]; then
-          echo "::error::Invalid major tag format (expected vX) !"
-          exit 3
-        fi;
-        echo "major=$MAJOR_TAG" >> "$GITHUB_OUTPUT"
+        MAJOR_TAG=$(echo "${FULL_TAG}" | cut -d '.' -f 1);
+        echo "Major tag -> ${MAJOR_TAG}"
+        if ! [[ "${MAJOR_TAG}" =~ ^v[0-9]+$ ]]; then
+          echo '::error::Invalid major tag format (expected vX) !'
+          exit 1
+        fi
+        echo "major=${MAJOR_TAG}" >> "${GITHUB_OUTPUT}"
 
     - shell: bash
       if: ${{ steps.validate.outputs.tag-type == 'full' }}
@@ -106,17 +106,18 @@ runs:
 
         # User email and name are required when -m is used !
         (
-          git config --global user.email "$GIT_EMAIL" && \
-          git config --global user.name "$GIT_NAME" \
+          git config --global user.email "${GIT_EMAIL}" && \
+          git config --global user.name "${GIT_NAME}" \
         ) || exit 1
 
         # Update the original tag BUT keep the original message !
-        git tag -l --format='%(contents)' $FULL_TAG > ./TAG_MSG || exit 2
+        git tag -l --format='%(contents)' "${FULL_TAG}" > ./TAG_MSG || exit 1
 
-        (git tag -f $MAJOR_TAG -m "Linked to $FULL_TAG tag" ${FULL_TAG}^{} && \
-          git tag -f $MINOR_TAG -m "Linked to $FULL_TAG tag" ${FULL_TAG}^{} && \
-          sleep 1 && git tag -f $FULL_TAG -F ./TAG_MSG ${FULL_TAG}^{} && \
-          git push origin --force $MINOR_TAG $MAJOR_TAG $FULL_TAG) || exit 3
+        (git tag -f "${MAJOR_TAG}" -m "Linked to ${FULL_TAG} tag" "${FULL_TAG}^{}" && \
+          git tag -f "${MINOR_TAG}" -m "Linked to "${FULL_TAG}" tag" "${FULL_TAG}^{}" && \
+          sleep 1 && git tag -f "${FULL_TAG}" -F ./TAG_MSG "${FULL_TAG}^{}" && \
+          git push origin --force "${MINOR_TAG}" "${MAJOR_TAG}" "${FULL_TAG}" \
+        ) || exit 1
 
     - shell: bash
       if: ${{ steps.validate.outputs.tag-type == 'full' && inputs.update-inner-releases == 'true' }}
@@ -128,22 +129,22 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         # Update inner releases
-        MINOR_RELEASE_EXISTS="`(gh release view ${MINOR_TAG} --json id -q .id | wc -l | tr -d '[:space:]') || echo 0`"
-        MAJOR_RELEASE_EXISTS="`(gh release view ${MAJOR_TAG} --json id -q .id | wc -l | tr -d '[:space:]') || echo 0`"
+        MINOR_RELEASE_EXISTS=$( (gh release view "${MINOR_TAG}" --json id -q .id | wc -l | tr -d '[:space:]') || echo 0);
+        MAJOR_RELEASE_EXISTS=$( (gh release view "${MAJOR_TAG}" --json id -q .id | wc -l | tr -d '[:space:]') || echo 0);
         if [[ "${MINOR_RELEASE_EXISTS}${MAJOR_RELEASE_EXISTS}" -eq 0 ]]; then
-          echo "::warning::No inner release to update !"
+          echo '::warning::No inner release to update !'
           exit 0
         fi
-        AS_LATEST_PARAM=""
+        PARAMS="--title ${FULL_TAG}"
         if [[ "`gh repo view --json latestRelease -q .latestRelease.tagName`" = "${FULL_TAG}" ]]; then
-          AS_LATEST_PARAM='--latest'
+          PARAMS+=' --latest'
         fi
         if ! [[ "${MINOR_RELEASE_EXISTS}" -eq 0 ]]; then
-          echo "Updating minor release ${MINOR_TAG} with --title "${FULL_TAG}" ${AS_LATEST_PARAM}"
-          gh release edit ${MINOR_TAG} --title "${FULL_TAG}" ${AS_LATEST_PARAM}
+          echo "Updating minor release ${MINOR_TAG} with '${PARAMS}'"
+          gh release edit ${MINOR_TAG} ${PARAMS}
         fi
         # Update major release at the end, so it will become the latest if --latest is used !
         if ! [[ "${MAJOR_RELEASE_EXISTS}" -eq 0 ]]; then
-          echo "Updating major release ${MAJOR_TAG} with --title "${FULL_TAG}" ${AS_LATEST_PARAM}"
-          gh release edit ${MAJOR_TAG} --title "${FULL_TAG}" ${AS_LATEST_PARAM}
+          echo "Updating major release ${MAJOR_TAG} with '${PARAMS}'"
+          gh release edit ${MAJOR_TAG} ${PARAMS}
         fi
