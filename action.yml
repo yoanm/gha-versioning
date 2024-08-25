@@ -139,11 +139,11 @@ runs:
           AS_LATEST_PARAM='--latest'
         fi
         if ! [[ "${MINOR_RELEASE_EXISTS}" = '0' ]]; then
-          echo "Updating minor release ${MINOR_TAG}"
+          echo "Updating minor release ${MINOR_TAG} with --title "${FULL_TAG}" ${AS_LATEST_PARAM}"
           gh release edit ${MINOR_TAG} --title "${FULL_TAG}" ${AS_LATEST_PARAM}
         fi
         # Update major release at the end, so it will become the latest if --latest is used !
         if ! [[ "${MAJOR_RELEASE_EXISTS}" = '0' ]]; then
-          echo "Updating major release ${MAJOR_TAG}"
+          echo "Updating major release ${MAJOR_TAG} with --title "${FULL_TAG}" ${AS_LATEST_PARAM}"
           gh release edit ${MAJOR_TAG} --title "${FULL_TAG}" ${AS_LATEST_PARAM}
         fi
