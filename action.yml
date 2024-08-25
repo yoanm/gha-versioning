@@ -128,8 +128,8 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         # Update inner releases
-        MINOR_RELEASE_EXISTS="`(gh release view ${MINOR_TAG} --json id -q .id | wc -l | tr -d '[:space:]') || echo 0`"
-        MAJOR_RELEASE_EXISTS="`(gh release view ${MAJOR_TAG} --json id -q .id | wc -l | tr -d '[:space:]') || echo 0`"
+        MINOR_RELEASE_EXISTS="`(gh release view ${MINOR_TAG} --json id -q .id) || echo 0`"
+        MAJOR_RELEASE_EXISTS="`(gh release view ${MAJOR_TAG} --json id -q .id) || echo 0`"
         if [[ "${MINOR_RELEASE_EXISTS}${MAJOR_RELEASE_EXISTS}" -eq 0 ]]; then
           echo "::warning::No inner release to update !"
           exit 0
