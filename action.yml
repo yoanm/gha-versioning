@@ -135,17 +135,17 @@ runs:
           echo '::warning::No inner release to update !'
           exit 0
         fi
-        PARAMS="--title \"${FULL_TAG}\""
+        PARAMS="--title ${FULL_TAG@Q}"
         if [[ "`gh repo view --json latestRelease -q .latestRelease.tagName`" = "${FULL_TAG}" ]]; then
           PARAMS+=" --latest"
         fi
         echo "PARAMS=${PARAMS}"  # Debug
         if ! [[ "${MINOR_RELEASE_EXISTS}" -eq 0 ]]; then
           echo "Updating minor release ${MINOR_TAG} with ${PARAMS}"
-          gh release edit "${MINOR_TAG}" ${PARAMS}
+          gh release edit ${MINOR_TAG@Q} ${PARAMS}
         fi
         # Update major release at the end, so it will become the latest if --latest is used !
         if ! [[ "${MAJOR_RELEASE_EXISTS}" -eq 0 ]]; then
           echo "Updating major release ${MAJOR_TAG} with ${PARAMS}"
-          gh release edit "${MAJOR_TAG}" ${PARAMS}
+          gh release edit ${MAJOR_TAG@Q} ${PARAMS}
         fi
