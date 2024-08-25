@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.release.prerelease == false && github.event.release.draft == false }}
     permissions:
-      contents: write # Required to push new tags !
+      contents: write # Required to manage tags & releases !
     steps:
       - name: Checkout
         uses: actions/checkout@v4

@@ -17,11 +17,12 @@ jobs:
       - name: Trigger test repository worfklow
         env:
           GITHUB_TOKEN: ${{ secrets.FUNCTIONAL_TESTS_TRIGGER }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
           SHA: ${{ github.event.workflow_run.head_sha }}
           TEST_ID: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.pull_requests[0]?.number || github.event.workflow_run.head_sha }}
         run: |
-          gh workflow run functional-tests.yml --json \
+          gh workflow run functional-tests.yml \
             --repo yoanm/gha-versioning-test-repo \
-            --ref feature/inner-releases \
+            --ref "${BRANCH}" \
             -f "sha=${SHA}" \
             -f "test-id=${TEST_ID}"
