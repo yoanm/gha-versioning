@@ -23,4 +23,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Validate action file syntax
-        run: yamllint -d relaxed action.yml 
+        run: yamllint -c .github/yamllint-config.yml action.yml

@@ -13,8 +13,8 @@ inputs:
     default: ${{ github.event.release.tag_name }}
   update-inner-releases:
     description: |
-      Whether to also update releases name linked to `vX` and `vX.Y` tags and set them as latest
-      if provided tag release is currently the latest release.
+      Whether to also update releases name linked to `vX` and `vX.Y` tags and set them as latest if provided tag
+      release is currently the latest release.
       Will work only on pre-existing releases !
     required: false
     default: 'false'
