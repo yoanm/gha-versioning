@@ -135,7 +135,7 @@ runs:
           echo '::warning::No inner release to update !'
           exit 0
         fi
-        PARAMS="--title '${FULL_TAG}'"
+        PARAMS="--title \"${FULL_TAG}\""
         if [[ "`gh repo view --json latestRelease -q .latestRelease.tagName`" = "${FULL_TAG}" ]]; then
           PARAMS+=' --latest'
         fi
