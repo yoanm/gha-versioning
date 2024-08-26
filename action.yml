@@ -133,7 +133,7 @@ runs:
         FULL_TAG: ${{ inputs.tag }}
         MINOR_TAG: ${{ steps.generate-tags.outputs.minor }}
         MAJOR_TAG: ${{ steps.generate-tags.outputs.major }}
-        LATEST_MODE: ${{ inputs.inner-releases-as-latest == 'auto' && 2 || (inputs.inner-releases-as-latest == 'true' && 1 || 0) }})
+        LATEST_MODE: ${{ inputs.inner-releases-as-latest }}
       working-directory: ${{ inputs.working-directory }}
       run: |
         # Update inner releases
@@ -144,7 +144,7 @@ runs:
           exit 0
         fi
         PARAMS="--title ${FULL_TAG}"
-        if [[ "${LATEST_MODE}" = "1" || ( "${LATEST_MODE}" = "2" && "`gh repo view --json latestRelease -q .latestRelease.tagName`" = "${FULL_TAG}" ) ]]; then
+        if [[ "${LATEST_MODE}" = "true" || ( "${LATEST_MODE}" = "auto" && "`gh repo view --json latestRelease -q .latestRelease.tagName`" = "${FULL_TAG}" ) ]]; then
           PARAMS+=' --latest'
         fi
         if ! [[ "${MINOR_RELEASE_EXISTS}" -eq 0 ]]; then
