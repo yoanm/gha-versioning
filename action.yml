@@ -19,7 +19,7 @@ inputs:
     default: 'false'
   inner-releases-as-latest:
     description: |
-      Whether to set inner releases as latest.
+      Whether to set inner releases as latest. Requires `update-inner-releases` at `true` !
       - `auto`: Will be set only if releases linked to provided `tag` is the latest
       - `true`: Set as latest whatever provided `tag` releases is the latest or not
       - `false`: Do not set them as latest

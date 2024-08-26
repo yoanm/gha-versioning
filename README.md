@@ -77,6 +77,10 @@ Then continue creating `vX.Y.Z` releases as usual, related existing `vX` and `vX
 - `inner-releases-as-latest`: Default to `auto`.
 
   Whether to set inner releases as latest.
+
+  > [!IMPORTANT]
+  > Requires `update-inner-releases` at `true` !
+
   - `auto`: Will be set only if releases linked to provided `tag` is the latest
   - `true`: Set them as latest whatever if provided `tag` release is the latest or not
   - `false`: Do not set them as latest
