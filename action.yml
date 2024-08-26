@@ -13,11 +13,18 @@ inputs:
     default: ${{ github.event.release.tag_name }}
   update-inner-releases:
     description: |
-      Whether to also update releases name linked to `vX` and `vX.Y` tags and set them as latest if provided tag
-      release is currently the latest release.
+      Whether to also update releases name linked to `vX` and `vX.Y` tags.
       Will work only on pre-existing releases !
     required: false
     default: 'false'
+  inner-releases-as-latest:
+    description: |
+      Whether to set inner releases as latest. Requires `update-inner-releases` at `true` !
+      - `auto`: Will be set only if releases linked to provided `tag` is the latest
+      - `true`: Set as latest whatever provided `tag` releases is the latest or not
+      - `false`: Do not set them as latest
+    required: false
+    default: 'auto'
   git-email:
     description: The email for the GIT user creating the tags
     required: false
@@ -126,17 +133,18 @@ runs:
         FULL_TAG: ${{ inputs.tag }}
         MINOR_TAG: ${{ steps.generate-tags.outputs.minor }}
         MAJOR_TAG: ${{ steps.generate-tags.outputs.major }}
+        LATEST_MODE: ${{ inputs.inner-releases-as-latest }}
       working-directory: ${{ inputs.working-directory }}
       run: |
         # Update inner releases
-        MINOR_RELEASE_EXISTS=$( (gh release view "${MINOR_TAG}" --json id -q .id | wc -l | tr -d '[:space:]') || echo 0);
-        MAJOR_RELEASE_EXISTS=$( (gh release view "${MAJOR_TAG}" --json id -q .id | wc -l | tr -d '[:space:]') || echo 0);
+        MINOR_RELEASE_EXISTS=$( (gh release view "${MINOR_TAG}" --json id -q .id | wc -l |tr -d '[:space:]') || echo 0);
+        MAJOR_RELEASE_EXISTS=$( (gh release view "${MAJOR_TAG}" --json id -q .id | wc -l |tr -d '[:space:]') || echo 0);
         if [[ "${MINOR_RELEASE_EXISTS}${MAJOR_RELEASE_EXISTS}" -eq 0 ]]; then
           echo '::warning::No inner release to update !'
           exit 0
         fi
         PARAMS="--title ${FULL_TAG}"
-        if [[ "`gh repo view --json latestRelease -q .latestRelease.tagName`" = "${FULL_TAG}" ]]; then
+        if [[ "${LATEST_MODE}" = "true" || ( "${LATEST_MODE}" = "auto" && "`gh repo view --json latestRelease -q .latestRelease.tagName`" = "${FULL_TAG}" ) ]]; then
           PARAMS+=' --latest'
         fi
         if ! [[ "${MINOR_RELEASE_EXISTS}" -eq 0 ]]; then
