@@ -25,6 +25,5 @@ jobs:
         run: |
           gh workflow run functional-tests.yml \
             --repo yoanm/gha-versioning-test-repo \
-            --ref "${TEST_BRANCH}" \
             -f "sha=${TARGET_SHA}" \
             -f "test-id=${TEST_ID}"
