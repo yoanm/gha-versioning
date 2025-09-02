@@ -13,7 +13,7 @@ jobs:
       contents: write # Required to manage tags & releases !
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Generate vX and vX.Y tags
         uses: ./
