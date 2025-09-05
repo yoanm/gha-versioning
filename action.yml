@@ -1,4 +1,4 @@
-name: gha-versioning
+name: GitHub Action versioning
 description: |
   Create (or override existing) vX and vX.Y based on the provided tag.
   Useful to maintain GitHub Action tags up to date.
