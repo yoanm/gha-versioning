@@ -4,13 +4,15 @@ on:
   release:
     types: [published, edited]
 
+permissions:
+  contents: write # Required to push new tags !
+
 jobs:
   job:
     name: ".github"
     if: ${{ github.event.release.prerelease == false && github.event.release.draft == false }}
     permissions:
-      contents: write
-      pull-requests: write
-    uses: yoanm/.github/.github/workflows/reusable-dependabot-PRs-manager.yml@feature/init # @TODO - !! Move to a tag before merging !!
+      contents: write # Required to push new tags !
+    uses: yoanm/.github/.github/workflows/reusable-github-action-release-manager.yml@v1
     with:
       update-inner-releases: true
