@@ -4,18 +4,15 @@ on:
   release:
     types: [published, edited]
 
+permissions:
+  contents: write # Required to push new tags !
+
 jobs:
-  tag:
-    name: Publish vX and vX.Y tags
-    runs-on: ubuntu-latest
+  job:
+    name: ".github"
     if: ${{ github.event.release.prerelease == false && github.event.release.draft == false }}
     permissions:
-      contents: write # Required to manage tags & releases !
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Generate vX and vX.Y tags
-        uses: ./
-        with:
-          update-inner-releases: true
+      contents: write # Required to push new tags !
+    uses: yoanm/.github/.github/workflows/reusable-github-action-release-manager.yml@v1
+    with:
+      update-inner-releases: true
