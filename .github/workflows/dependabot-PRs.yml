@@ -1,16 +1,15 @@
-name: Publish
+name: Dependabot PRs
+on: pull_request
 
-on:
-  release:
-    types: [published, edited]
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   job:
     name: ".github"
-    if: ${{ github.event.release.prerelease == false && github.event.release.draft == false }}
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'yoanm/gha-versioning'
     permissions:
       contents: write
       pull-requests: write
     uses: yoanm/.github/.github/workflows/reusable-dependabot-PRs-manager.yml@feature/init # @TODO - !! Move to a tag before merging !!
-    with:
-      update-inner-releases: true
